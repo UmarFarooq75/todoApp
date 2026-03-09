@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 Todo App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>📝 Todo App</h1>
+      <div class="header-actions">
+        <button id="statsBtn" class="btn-icon" title="View stats">📊</button>
+        <button id="clearCompleted" class="btn-secondary" title="Clear completed">Clear</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Input Section -->
+      <section class="input-section">
+        <form id="todoForm" class="todo-form">
+          <input 
+            type="text" 
+            id="titleInput" 
+            placeholder="Add a new todo..." 
+            class="input-title"
+            required
+          >
+          <textarea 
+            id="descriptionInput" 
+            placeholder="Description (optional)" 
+            class="input-description"
+            rows="2"
+          ></textarea>
+          <div class="input-row">
+            <input 
+              type="date" 
+              id="dueDateInput" 
+              class="input-date"
+            >
+            <select id="priorityInput" class="input-priority">
+              <option value="low">Low Priority</option>
+              <option value="medium" selected>Medium Priority</option>
+              <option value="high">High Priority</option>
+            </select>
+            <button type="submit" class="btn-primary">Add Todo</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Filter Section -->
+      <section class="filter-section">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="todo">To Do</button>
+        <button class="filter-btn" data-filter="in-progress">In Progress</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+      </section>
+
+      <!-- Search Section -->
+      <section class="search-section">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="🔍 Search todos..." 
+          class="input-search"
+        >
+      </section>
+
+      <!-- Stats Section -->
+      <section id="statsSection" class="stats-section" style="display: none;">
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="statCompleted">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">In Progress</div>
+          <div class="stat-value" id="statInProgress">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">To Do</div>
+          <div class="stat-value" id="statTodo">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">High Priority</div>
+          <div class="stat-value" id="statHighPriority">0</div>
+        </div>
+        <div class="stat-card alert">
+          <div class="stat-label">Overdue</div>
+          <div class="stat-value" id="statOverdue">0</div>
+        </div>
+      </section>
+
+      <!-- Todos List -->
+      <section class="todos-section">
+        <div id="todosList" class="todos-list">
+          <div class="empty-state">
+            <p>📭 No todos yet. Add one to get started!</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Todo Detail Modal -->
+  <div id="todoModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle"></h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-field">
+          <label>Status</label>
+          <select id="modalStatus" class="select-field">
+            <option value="todo">To Do</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="detail-field">
+          <label>Description</label>
+          <textarea id="modalDescription" class="textarea-field"></textarea>
+        </div>
+        <div class="detail-field">
+          <label>Priority</label>
+          <select id="modalPriority" class="select-field">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="detail-field">
+          <label>Due Date</label>
+          <input type="date" id="modalDueDate" class="input-field">
+        </div>
+        <div class="detail-field">
+          <label>Tags</label>
+          <div id="tagsContainer" class="tags-container"></div>
+          <input 
+            type="text" 
+            id="tagInput" 
+            placeholder="Add tag and press Enter" 
+            class="input-field"
+          >
+        </div>
+        <div class="detail-info">
+          <p>Created: <span id="createdDate"></span></p>
+          <p>Updated: <span id="updatedDate"></span></p>
+          <p id="closedDateInfo" style="display: none;">Completed: <span id="closedDate"></span></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveBtn" class="btn-primary">Save Changes</button>
+        <button id="deleteBtn" class="btn-danger">Delete</button>
+        <button id="closeBtn" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

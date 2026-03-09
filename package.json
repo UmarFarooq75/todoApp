@@ -1,0 +1,30 @@
+{
+  "name": "todo-app",
+  "version": "1.0.0",
+  "description": "Full-featured Todo App with backend API and local storage",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/backend/server.js",
+    "start": "node src/backend/server.js",
+    "build": "tsc",
+    "client": "python3 -m http.server 8000 --directory src/frontend",
+    "test": "node --test src/backend/**/*.test.js",
+    "test:service": "node --test src/backend/todoService.test.js",
+    "test:api": "node --test src/backend/server.test.js",
+    "test:all": "node --test src/backend/**/*.test.js --reporter=tap"
+  },
+  "keywords": ["todo", "app", "api"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  }
+}
