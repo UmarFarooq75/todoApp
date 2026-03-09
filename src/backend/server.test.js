@@ -5,10 +5,11 @@ import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = new URL('.', import.meta.url).pathname;
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const DATA_FILE = join(__dirname, '../../data/todos.json');
 
-const API_BASE = 'http://localhost:3001/api';
+const PORT = process.env.PORT || 3001;
+const API_BASE = `http://localhost:${PORT}/api`;
 let server = null;
 
 // Helper to reset database
@@ -19,16 +20,29 @@ function resetDB() {
 
 // Start server before tests
 async function startServer() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     server = spawn('node', ['src/backend/server.js'], {
       cwd: join(__dirname, '../..'),
       stdio: 'pipe',
+      env: { ...process.env, PORT: String(PORT) },
     });
 
-    // Wait for server to be ready
-    setTimeout(() => {
-      resolve();
-    }, 2000);
+    // Poll the health endpoint until it's ready (timeout 5000ms)
+    const start = Date.now();
+    (async function waitReady() {
+      try {
+        const res = await fetch(`${API_BASE}/health`);
+        if (res.ok) return resolve();
+      } catch (e) {
+        // ignore
+      }
+
+      if (Date.now() - start > 5000) {
+        return resolve();
+      }
+
+      setTimeout(waitReady, 200);
+    })();
   });
 }
 
@@ -388,7 +402,7 @@ test('🐛 BUG: Updating status incorrectly sets closedDate', async () => {
       console.log('  Expected: null, Got: ' + updated.data.data.closedDate);
     }
     
-    assert.ok(updated.data.data.closedDate, 'Bug is present - closedDate is incorrectly set');
+    assert.strictEqual(updated.data.data.closedDate, null);
   } finally {
     await stopServer();
   }
