@@ -4,6 +4,9 @@ import bodyParser from 'body-parser';
 import * as todoService from './todoService.js';
 import { ensureDataFile } from './db.js';
 
+const ALLOWED_STATUSES = new Set(['todo', 'in-progress', 'completed']);
+const ALLOWED_PRIORITIES = new Set(['low', 'medium', 'high']);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
