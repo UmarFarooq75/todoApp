@@ -1,31 +1,53 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { spawn } from 'node:child_process';
-import { writeFileSync } from 'fs';
+import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
+
+import net from 'node:net';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const DATA_FILE = join(__dirname, '../../data/todos.json');
 
-const PORT = process.env.PORT || 3001;
-const API_BASE = `http://localhost:${PORT}/api`;
+function getFreePort() {
+  return new Promise((resolve, reject) => {
+    const s = net.createServer();
+    s.unref();
+    s.on('error', reject);
+    s.listen(0, () => {
+      const { port } = s.address();
+      s.close(() => resolve(port));
+    });
+  });
+}
+
+let PORT = null;
+let API_BASE = null;
 let server = null;
 
 // Helper to reset database
 function resetDB() {
+  mkdirSync(join(__dirname, '../../data'), { recursive: true });
   const initialData = { todos: [], lastUpdated: new Date().toISOString() };
   writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
 }
 
 // Start server before tests
 async function startServer() {
+  if (!PORT) {
+    PORT = await getFreePort();
+    API_BASE = `http://localhost:${PORT}/api`;
+  }
+
   return new Promise((resolve, reject) => {
     server = spawn('node', ['src/backend/server.js'], {
       cwd: join(__dirname, '../..'),
       stdio: 'pipe',
       env: { ...process.env, PORT: String(PORT) },
     });
+
+    server.on('error', reject);
 
     // Poll the health endpoint until it's ready (timeout 5000ms)
     const start = Date.now();
@@ -38,7 +60,7 @@ async function startServer() {
       }
 
       if (Date.now() - start > 5000) {
-        return resolve();
+        return reject(new Error('Server did not become ready in time'));
       }
 
       setTimeout(waitReady, 200);
