@@ -132,16 +132,14 @@ test('Should update todo due date', () => {
 });
 
 // ===== BUG TEST: closedDate is set incorrectly =====
-test('🐛 BUG: Should set closedDate only when status is "completed"', () => {
+test('Should set closedDate only when status is "completed"', () => {
   resetDB();
   const todo = todoService.createTodo('Todo');
-  
-  // This is the BUG: updating to ANY status sets closedDate
+
+  // Updating to a non-completed status should NOT set closedDate
   const updated = todoService.updateTodo(todo.id, { status: 'in-progress' });
-  
-  // BUG: This should be null, but it's not!
-  assert.ok(updated.closedDate, 'BUG DETECTED: closedDate is set for non-completed status!');
-  console.log('  ⚠️  Found the bug: closedDate = ' + updated.closedDate + ' (should be null)');
+
+  assert.strictEqual(updated.closedDate, null);
 });
 
 test('Should update todo status to completed', () => {

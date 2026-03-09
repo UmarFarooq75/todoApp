@@ -51,10 +51,15 @@ export function updateTodo(id, updates) {
     updatedAt: new Date().toISOString(),
   };
   
-  // BUG: This sets closedDate for ANY status update, not just when completing
-  // It should check: if (updates.status === 'completed' && !todos[index].closedDate)
-  if (updates.status) {
-    todos[index].closedDate = new Date().toISOString();
+  // Set closedDate only when status becomes 'completed'; clear it for other statuses
+  if (Object.prototype.hasOwnProperty.call(updates, 'status')) {
+    if (updates.status === 'completed') {
+      if (!todos[index].closedDate) {
+        todos[index].closedDate = new Date().toISOString();
+      }
+    } else {
+      todos[index].closedDate = null;
+    }
   }
   
   writeTodos(todos);
@@ -117,11 +122,11 @@ export function deleteCompletedTodos() {
 export function searchTodos(query) {
   const todos = readTodos();
   const q = query.toLowerCase();
-  // BUG: This returns NO results even when matches exist!
-  // The problem: using .every() instead of .some() - EVERY field must match, not ANY
-  return todos.filter(todo =>
-    todo.title.toLowerCase().includes(q) &&
-    todo.description.toLowerCase().includes(q) &&
-    todo.tags.every(tag => tag.toLowerCase().includes(q))
-  );
+  // Search title, description or tags for the query (case-insensitive)
+  return todos.filter(todo => {
+    const titleMatch = todo.title && todo.title.toLowerCase().includes(q);
+    const descMatch = todo.description && todo.description.toLowerCase().includes(q);
+    const tagMatch = Array.isArray(todo.tags) && todo.tags.some(tag => tag.toLowerCase().includes(q));
+    return titleMatch || descMatch || tagMatch;
+  });
 }
