@@ -1,15 +1,27 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import * as todoService from './todoService.js';
 import { ensureDataFile } from './db.js';
+
+const ALLOWED_STATUSES = new Set(['todo', 'in-progress', 'completed']);
+const ALLOWED_PRIORITIES = new Set(['low', 'medium', 'high']);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const FRONTEND_DIR = path.resolve(__dirname, '../frontend');
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// Serve frontend static files
+app.use(express.static(FRONTEND_DIR));
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -25,6 +37,11 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
   });
+});
+
+// SPA fallback (serve index.html for non-API routes)
+app.get(/^\/(?!api\/).*/, (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
 
 // GET all todos

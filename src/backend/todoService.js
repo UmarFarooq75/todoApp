@@ -1,6 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { readTodos, writeTodos } from './db.js';
 
+const ALLOWED_STATUSES = new Set(['todo', 'in-progress', 'completed']);
+const ALLOWED_PRIORITIES = new Set(['low', 'medium', 'high']);
+const IMMUTABLE_FIELDS = new Set(['id', 'createdAt', 'updatedAt', 'closedDate']);
+
 // Get all todos with filtering
 export function getAllTodos(status = null) {
   const todos = readTodos();
